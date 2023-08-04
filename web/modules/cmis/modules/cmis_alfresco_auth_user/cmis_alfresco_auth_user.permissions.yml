@@ -1,0 +1,3 @@
+administer_cmis_alfresco_auth_user:
+  title: 'Administer CMIS Alfresco Auth User settings'
+  restrict access: TRUE

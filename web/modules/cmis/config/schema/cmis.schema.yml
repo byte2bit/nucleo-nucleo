@@ -1,0 +1,23 @@
+# Schema for cmis.
+field.widget.settings.cmis_field_widget:
+  type: mapping
+  label: 'CMIS widget settings'
+  mapping:
+    size:
+      type: integer
+      label: 'Size of textfield'
+    placeholder:
+      type: label
+      label: 'Text that will be shown inside the field until a value is entered'
+    cmis_configuration:
+      type: string
+      label: 'CMIS configuration'
+
+# Schema for cmis field formatter.
+field.formatter.settings.cmis_field_browser:
+  type: mapping
+  label: 'Browser formatter settings'
+  mapping:
+    show_breadcrumb:
+      type: boolean
+      label: 'Show breadcrumb'

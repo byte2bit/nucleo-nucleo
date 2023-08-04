@@ -1,0 +1,24 @@
+name: elFinder
+type: module
+description: 'AJAX file manager with Wysiwyg API capable editors support.'
+package: 'Media'
+configure: elfinder.admin
+project status url: https://drupal-elfinder.sourceforge.io/release-history.php
+
+# Information added by packaging script
+version: '8.x-2.x-dev'
+core: '8.x'
+core_version_requirement: ^8 || ^9
+project: 'elfinder'
+datestamp: 1609945309
+
+libraries-override:
+ core/jquery.ui:
+    css:
+      component:
+        assets/vendor/jquery.ui/themes/theme.css: false
+
+ seven/base:
+   css:
+     component:
+       /core/themes/seven/css/components/jquery.ui/theme.css: false

@@ -1,0 +1,7 @@
+silvio_module.welcome:
+  path: '/welcome/page'
+  defaults:
+    _controller: '\Drupal\silvio_module\Controller\SilvioController::welcome'
+    _title: 'Modulo Silvio'
+  requirements: 
+    _permission: 'access content'

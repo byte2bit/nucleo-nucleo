@@ -1,0 +1,10 @@
+/*
+ * elFinder Integration
+ *
+ * Copyright (c) 2010-2020, Alexey Sukhotin. All rights reserved.
+ */
+
+
+.elfinder-button-icon-chown {
+  background-image: url('/core/misc/icons/000000/people.svg');
+}

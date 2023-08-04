@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations for CMIS Alfresco Auth User module.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use GuzzleHttp\Exception\RequestException;
+
+/**
+ * Implements hook_help().
+ */
+function cmis_alfresco_auth_user_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.cmis_alfresco_auth_user':
+      $help = '<p>' . t("This module allows users to use CMIS features by connecting to Alfresco using Drupal's login/password.") . '</p>';
+      $help .= '<p>' . t("Warning! When the Alfresco's connection ticket will expire, the user will be logged out.") . '</p>';
+      return $help;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for 'user_login_form'.
+ *
+ * Add a submit handler to log on Alfresco and get a login ticket.
+ */
+function cmis_alfresco_auth_user_form_user_login_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#submit'][] = 'cmis_alfresco_auth_user_get_ticket';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for 'cmis_connection_entity_add_form'.
+ *
+ * No more need to provide login/password on CMIS connection.
+ */
+function cmis_alfresco_auth_user_form_cmis_connection_entity_add_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['cmis_user']['#required'] = FALSE;
+  $form['cmis_password']['#required'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for 'cmis_connection_entity_edit_form'.
+ *
+ * No more need to provide login/password on CMIS connection.
+ */
+function cmis_alfresco_auth_user_form_cmis_connection_entity_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['cmis_user']['#required'] = FALSE;
+  $form['cmis_password']['#required'] = FALSE;
+}
+
+/**
+ * Get an Alfresco ticket and set it in user's tempstore.
+ */
+function cmis_alfresco_auth_user_get_ticket(&$form, FormStateInterface $form_state) {
+  $config = \Drupal::config('cmis_alfresco_auth_user.settings');
+  $url = $config->get('alfresco_tickets_endpoint_url');
+
+  if ($url) {
+    try {
+      $get_ticket = \Drupal::service('http_client_factory')->fromOptions()->post($url, [
+        'json' => [
+          'userId' => $form['name']['#value'],
+          'password' => $form['pass']['#value'],
+        ],
+      ]);
+      $response = Json::decode((string) $get_ticket->getBody());
+
+      if (isset($response['entry']['id'])) {
+        $ticket = base64_encode($response['entry']['id']);
+        $store_ticket = \Drupal::service('tempstore.private')->get('cmis_alfresco_auth_user');
+        $store_ticket->set('ticket', $ticket);
+      }
+    }
+    catch (RequestException $exception) {
+      \Drupal::logger('cmis_alfresco_auth_user')->error($exception->getMessage());
+    }
+  }
+}

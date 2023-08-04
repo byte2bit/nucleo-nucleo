@@ -1,0 +1,93 @@
+diff --git a/css/admin.toolbar.css b/css/admin.toolbar.css
+index 98550bfe..fa7d10cc 100644
+--- a/css/admin.toolbar.css
+ b/css/admin.toolbar.css
+@@ -216,3 216,16 @@
+ [dir="rtl"] .toolbar .toolbar-tray-vertical li.open > ul.toolbar-menu.clearfix {
+   display: block;
+ }
+
+.__tba_toggle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 38px;
+  width: 38px;
+  color: white;
+  padding: 5px 2px 0px 10px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 99999999;
+}
+\ No newline at end of file
+diff --git a/js/admin_toolbar.js b/js/admin_toolbar.js
+index a714c6ef..d28a848a 100644
+--- a/js/admin_toolbar.js
+ b/js/admin_toolbar.js
+@@ -1,7 1,68 @@
+ (function ($, Drupal) {
+   Drupal.behaviors.adminToolbar = {
+    toggleToolbar: {
+      initialized:false,
+      show: function(context, settings) {
+        $("#toolbar-administration", context).show()
+        $("body", context)
+          .css("padding-top", settings.initial_toolbar_padding_top)
+          .css("margin-left", settings.initial_toolbar_margin_left);
+        $(".__tba_toggle", context).text('â–²')
+        Drupal.behaviors.adminToolbar.toggleToolbar.storage('show');
+      },
+      hide: function(context, settings) {
+        $("#toolbar-administration", context).hide();
+        settings.initial_toolbar_padding_top = $("body", context).css("padding-top");
+        settings.initial_toolbar_margin_left = $("body", context).css("margin-left");
+        $("body", context).css("padding-top", 0).css("margin-left", 0);
+        $(".__tba_toggle", context).text('â–¼');
+        Drupal.behaviors.adminToolbar.toggleToolbar.storage('hide');
+      },
+      storage:function(write) {
+        if (!window.localStorage) {
+          return false;
+        }
+        if (!write) {
+          return window.localStorage.adminToolbarToggle ? window.localStorage.adminToolbarToggle : false;
+        }
+        window.localStorage.adminToolbarToggle = write;
+      },
+      toggle: function(context, settings) {
+        if ($("#toolbar-administration:hidden")[0]) {
+          Drupal.behaviors.adminToolbar.toggleToolbar.show(context, settings);
+        }
+        else {
+         Drupal.behaviors.adminToolbar.toggleToolbar.hide(context, settings);
+        }
+      },
+      init: function(context,settings) {
+        var tt = Drupal.behaviors.adminToolbar.toggleToolbar;
+        if (tt.initialized) {
+          return;
+        }
+        $("body", context).prepend('<div class="__tba_toggle" >â–²</div>');
+        $('.__tba_toggle', context).css("background-color", $("#toolbar-bar", context).css("background-color"));
+        $("#toolbar-item-administration", context).css('margin-left', "38px");
+
+        if (tt.storage() == 'hide') {
+         tt.hide(context, settings);
+        }
+        else {
+          tt.show(context, settings);
+        }
+
+        $("body", context).on('click', '.__tba_toggle', function(){
+          tt.toggle(context, settings);
+        });
+        tt.initialized = true;
+      }
+    },
+     attach: function (context, settings) {
+ 
+      // On non-admin-routes, hide the toolbar and show minimal toggle.
+      if (!settings.path.currentPathIsAdmin) {
+        Drupal.behaviors.adminToolbar.toggleToolbar.init(context, settings);
+      }
+       $('a.toolbar-icon', context).removeAttr('title');

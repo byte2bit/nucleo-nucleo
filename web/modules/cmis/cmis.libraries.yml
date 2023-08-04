@@ -1,0 +1,17 @@
+cmis-field:
+  js:
+    js/cmis_field.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+
+cmis-browser:
+  js:
+    js/cmis_browser.js: {}
+  css:
+    theme:
+      css/cmis_browser.css: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/jquery.once

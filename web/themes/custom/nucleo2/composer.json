@@ -1,0 +1,10 @@
+{
+	"name": "drupal/nucleo2",
+	"type": "drupal-theme",
+	"description": "SASS subtheme for Barrio Theme.",
+	"homepage": "http://drupal.org/project/nucleo2",
+	"license": "GPL-2.0+",
+	"require": {
+		"drupal/bootstrap_barrio": ">=5.1.3"
+	}
+}

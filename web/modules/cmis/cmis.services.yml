@@ -1,0 +1,5 @@
+services:
+  cmis.connection_api:
+    class: Drupal\cmis\CmisConnectionApi
+  cmis.field_browser_builder:
+    class: Drupal\cmis\Service\CmisFieldBrowserBuilder

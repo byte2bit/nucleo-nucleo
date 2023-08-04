@@ -1,0 +1,9 @@
+cmis_alfresco_auth_user.settings_form:
+  path: '/admin/config/services/cmis-alfresco-auth-user'
+  defaults:
+    _form: '\Drupal\cmis_alfresco_auth_user\Form\CmisAlfrescoAuthUserSettingsForm'
+    _title: 'CMIS Alfresco Auth User configuration'
+  requirements:
+    _permission: 'administer_cmis_alfresco_auth_user'
+  options:
+    _admin_route: TRUE

@@ -1,0 +1,5 @@
+cmis_alfresco_auth_user.config_form:
+  title: 'Cmis Alfresco Auth User'
+  route_name: cmis_alfresco_auth_user.settings_form
+  description: 'CMIS Alfresco Auth User configuration'
+  parent: system.admin_config_services

@@ -1,0 +1,13 @@
+name: 'CMIS Alfresco Auth User'
+type: module
+description: "Allow users to use CMIS features by connecting to Alfresco using Drupal's login/password."
+core_version_requirement: ^8.8 || ^9
+package: 'CMIS'
+configure: cmis_alfresco_auth_user.settings_form
+dependencies:
+  - cmis:cmis
+
+# Information added by Drupal.org packaging script on 2021-09-13
+version: '8.x-2.0-alpha3'
+project: 'cmis'
+datestamp: 1631537318

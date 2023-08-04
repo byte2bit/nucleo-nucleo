@@ -1,0 +1,16 @@
+name: Panels Breadcrumbs
+description: 'Provides panels breadcrumbs functionality.'
+type: module
+package: Panels
+core: 8.x
+core_version_requirement: ^8 || ^9
+dependencies:
+- ctools:ctools
+- page_manager:page_manager_ui
+- token:token
+
+
+# Information added by Drupal.org packaging script on 2022-02-07
+version: '8.x-1.x-dev'
+project: 'panels_breadcrumbs'
+datestamp: 1644269015

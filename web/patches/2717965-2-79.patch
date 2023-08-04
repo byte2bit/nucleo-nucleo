@@ -1,0 +1,84 @@
+diff --git a/core/lib/Drupal/Component/Utility/Unicode.php b/core/lib/Drupal/Component/Utility/Unicode.php
+index b222f78bc0..f8e026faf6 100644
+--- a/core/lib/Drupal/Component/Utility/Unicode.php
++++ b/core/lib/Drupal/Component/Utility/Unicode.php
+@@ -603,11 +603,13 @@ public static function strcasecmp($str1, $str2) {
+    *
+    * @param string $string
+    *   The header to encode.
++   * @param bool $shorten
++   *   If TRUE, only return the first chunk of a multi-chunk encoded string.
+    *
+    * @return string
+    *   The mime-encoded header.
+    */
+-  public static function mimeHeaderEncode($string) {
++  public static function mimeHeaderEncode($string, $shorten = FALSE) {
+     if (preg_match('/[^\x20-\x7E]/', $string)) {
+       // floor((75 - strlen("=?UTF-8?B??=")) * 0.75);
+       $chunk_size = 47;
+@@ -616,6 +618,9 @@ public static function mimeHeaderEncode($string) {
+       while ($len > 0) {
+         $chunk = static::truncateBytes($string, $chunk_size);
+         $output .= ' =?UTF-8?B?' . base64_encode($chunk) . "?=\n";
++        if ($shorten) {
++          break;
++        }
+         $c = strlen($chunk);
+         $string = substr($string, $c);
+         $len -= $c;
+diff --git a/core/lib/Drupal/Core/Mail/MailManager.php b/core/lib/Drupal/Core/Mail/MailManager.php
+index 6a092c9329..348dceeb20 100644
+--- a/core/lib/Drupal/Core/Mail/MailManager.php
++++ b/core/lib/Drupal/Core/Mail/MailManager.php
+@@ -3,6 +3,7 @@
+ namespace Drupal\Core\Mail;
+ 
+ use Drupal\Component\Render\PlainTextOutput;
++use Drupal\Component\Utility\Unicode;
+ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+ use Drupal\Core\Plugin\DefaultPluginManager;
+ use Drupal\Core\Cache\CacheBackendInterface;
+@@ -248,7 +249,12 @@ public function doMail($module, $key, $to, $langcode, $params = [], $reply = NUL
+     // Return-Path headers should have a domain authorized to use the
+     // originating SMTP server.
+     $headers['Sender'] = $headers['Return-Path'] = $site_mail;
+-    $headers['From'] = $site_config->get('name') . ' <' . $site_mail . '>';
++    // Headers are usually encoded in the mail plugin that implements
++    // \Drupal\Core\Mail\MailInterface::mail(), for example,
++    // \Drupal\Core\Mail\Plugin\Mail\PhpMail::mail(). The site name must be
++    // encoded here to prevent mail plugins from encoding the email address,
++    // which would break the header.
++    $headers['From'] = Unicode::mimeHeaderEncode($site_config->get('name'), TRUE) . ' <' . $site_mail . '>';
+     if ($reply) {
+       $headers['Reply-to'] = $reply;
+     }
+diff --git a/core/modules/system/tests/src/Functional/Mail/MailTest.php b/core/modules/system/tests/src/Functional/Mail/MailTest.php
+index 74549a3211..e8accddb6f 100644
+--- a/core/modules/system/tests/src/Functional/Mail/MailTest.php
++++ b/core/modules/system/tests/src/Functional/Mail/MailTest.php
+@@ -2,6 +2,7 @@
+ 
+ namespace Drupal\Tests\system\Functional\Mail;
+ 
++use Drupal\Component\Utility\Unicode;
+ use Drupal\Core\Mail\Plugin\Mail\TestMailCollector;
+ use Drupal\Tests\BrowserTestBase;
+ use Drupal\system_mail_failure_test\Plugin\Mail\TestPhpMailFailure;
+@@ -90,11 +91,15 @@ public function testFromAndReplyToHeader() {
+     $this->assertEqual($reply_email, $sent_message['headers']['Reply-to'], 'Message reply-to headers are set.');
+     $this->assertFalse(isset($sent_message['headers']['Errors-To']), 'Errors-to header must not be set, it is deprecated.');
+ 
++    // Test that long site names containing characters that need MIME encoding
++    // works as expected.
++    $this->config('system.site')->set('name', 'DrÃ©pal this is a very long test sentence to test what happens with very long site names')->save();
+     // Send an email and check that the From-header contains the site name.
+     \Drupal::service('plugin.manager.mail')->mail('simpletest', 'from_test', 'from_test@example.com', $language);
+     $captured_emails = \Drupal::state()->get('system.test_mail_collector');
+     $sent_message = end($captured_emails);
+-    $this->assertEqual($from_email, $sent_message['headers']['From'], 'Message is sent from the site email account.');
++    $this->assertEquals('=?UTF-8?B?RHLDqXBhbCB0aGlzIGlzIGEgdmVyeSBsb25nIHRlc3Qgc2VudGVuY2UgdG8gdGU=?= <simpletest@example.com>', $sent_message['headers']['From'], 'From header is correctly encoded.');
++    $this->assertEquals('DrÃ©pal this is a very long test sentence to te <simpletest@example.com>', Unicode::mimeHeaderDecode($sent_message['headers']['From']), 'From header is correctly encoded.');
+     $this->assertFalse(isset($sent_message['headers']['Reply-to']), 'Message reply-to is not set if not specified.');
+     $this->assertFalse(isset($sent_message['headers']['Errors-To']), 'Errors-to header must not be set, it is deprecated.');
+   }

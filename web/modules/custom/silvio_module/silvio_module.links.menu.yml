@@ -1,0 +1,7 @@
+silvio_module.admin:
+      path: '/admin'
+  defaults:
+    _controller: '\Drupal\silvio_module\Controller\SilvioController::overview'
+    _title: 'Modulo Silvio'
+  requirements:
+    _role: 'administer silvio_module'

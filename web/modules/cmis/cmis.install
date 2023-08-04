@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the CMIS module.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\user\Entity\Role;
+
+/**
+ * Add the new "administer cmis connection entity" permission.
+ */
+function cmis_update_8201() {
+  /** @var \Drupal\user\RoleInterface $role */
+  foreach (Role::loadMultiple() as $role) {
+    if ($role->hasPermission('administer site configuration')) {
+      $role->grantPermission('administer cmis connection entity');
+    }
+    $role->save();
+  }
+}
+
+/**
+ * Need to flush caches to have the HTML route provider taken into account.
+ */
+function cmis_update_8202() {
+  // Empty update hook to flush caches.
+}
+
+/**
+ * Add the new "access all cmis browsers" permission.
+ */
+function cmis_update_8203() {
+  /** @var \Drupal\user\RoleInterface $role */
+  foreach (Role::loadMultiple() as $role) {
+    if ($role->hasPermission('access cmis browser')) {
+      $role->grantPermission('access all cmis browsers');
+      $role->revokePermission('access cmis browser');
+    }
+    $role->save();
+  }
+}
+
+/**
+ * Revoke "access cmis operations" permission.
+ */
+function cmis_update_8204() {
+  /** @var \Drupal\user\RoleInterface $role */
+  foreach (Role::loadMultiple() as $role) {
+    if ($role->hasPermission('access cmis operations')) {
+      $role->revokePermission('access cmis operations');
+    }
+    $role->save();
+  }
+}

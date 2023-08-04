@@ -1,0 +1,97 @@
+diff --git a/config/schema/feeds.schema.yml b/config/schema/feeds.schema.yml
+index 70aa6448..daaf4030 100644
+--- a/config/schema/feeds.schema.yml
++++ b/config/schema/feeds.schema.yml
+@@ -185,6 +185,8 @@ feeds.processor.entity:
+         type: ignore
+     langcode:
+       type: string
++    insert_new:
++      type: integer
+     update_existing:
+       type: integer
+     update_non_existent:
+diff --git a/src/Feeds/Processor/EntityProcessorBase.php b/src/Feeds/Processor/EntityProcessorBase.php
+index e8ed6a12..500b4bbc 100644
+--- a/src/Feeds/Processor/EntityProcessorBase.php
++++ b/src/Feeds/Processor/EntityProcessorBase.php
+@@ -131,6 +131,7 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
+ 
+     $existing_entity_id = $this->existingEntityId($feed, $item);
+     $skip_existing = $this->configuration['update_existing'] == static::SKIP_EXISTING;
++    $skip_new = $this->configuration['insert_new'] == static::FEEDS_SKIP_NEW;
+ 
+     // If the entity is an existing entity it must be removed from the clean
+     // list.
+@@ -139,7 +140,7 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
+     }
+ 
+     // Bulk load existing entities to save on db queries.
+-    if ($skip_existing && $existing_entity_id) {
++    if (($skip_existing && $existing_entity_id) || (!$existing_entity_id && $skip_new)) {
+       $state->skipped++;
+       return;
+     }
+@@ -160,7 +161,7 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
+     }
+ 
+     // Build a new entity.
+-    if (!$existing_entity_id) {
++    if (!$existing_entity_id && !$skip_new) {
+       $entity = $this->newEntity($feed);
+     }
+ 
+@@ -639,6 +640,7 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
+    */
+   public function defaultConfiguration() {
+     $defaults = [
++      'insert_new' => static::FEEDS_INSERT_NEW,
+       'update_existing' => static::SKIP_EXISTING,
+       'update_non_existent' => static::KEEP_NON_EXISTENT,
+       'skip_hash_check' => FALSE,
+diff --git a/src/Feeds/Processor/Form/DefaultEntityProcessorForm.php b/src/Feeds/Processor/Form/DefaultEntityProcessorForm.php
+index 1d60fa20..105d7801 100644
+--- a/src/Feeds/Processor/Form/DefaultEntityProcessorForm.php
++++ b/src/Feeds/Processor/Form/DefaultEntityProcessorForm.php
+@@ -71,6 +71,16 @@ class DefaultEntityProcessorForm extends ExternalPluginFormBase implements Conta
+         ]);
+       }
+     }
++    $form['insert_new'] = [
++      '#type' => 'radios',
++      '#title' => t('Insert new @entities', $tokens),
++      '#description' => t('New @entities will be determined using mappings that are a "unique target".', $tokens),
++      '#options' => [
++        ProcessorInterface::FEEDS_INSERT_NEW => $this->t('Insert new @entities', $tokens),
++        ProcessorInterface::FEEDS_SKIP_NEW => $this->t('Do not insert new @entities', $tokens),
++       ],
++      '#default_value' => $this->plugin->getConfiguration('insert_new'),
++    ];
+ 
+     $form['update_existing'] = [
+       '#type' => 'radios',
+diff --git a/src/Plugin/Type/Processor/ProcessorInterface.php b/src/Plugin/Type/Processor/ProcessorInterface.php
+index 74f05edd..d1db91dc 100644
+--- a/src/Plugin/Type/Processor/ProcessorInterface.php
++++ b/src/Plugin/Type/Processor/ProcessorInterface.php
+@@ -33,6 +33,20 @@ interface ProcessorInterface extends FeedsPluginInterface {
+    */
+   const UPDATE_EXISTING = 2;
+ 
++  /**
++   * Create new item from Feed.
++   *
++   * @var int
++   */
++  const FEEDS_INSERT_NEW = 0;
++
++  /**
++   * Skip new item from feed.
++   *
++   * @var int
++   */
++  const FEEDS_SKIP_NEW = 1;
++
+   /**
+    * Feed items should never be expired.
+    *

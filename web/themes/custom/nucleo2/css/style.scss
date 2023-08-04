@@ -1,0 +1,20 @@
+/* Error: Undefined mixin.
+ *   ,
+ * 9 |         @include button-variant($value);
+ *   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ *   '
+ *   ../../contrib/bootstrap_barrio/scss/components/mixins.scss 9:3  @import
+ *   ../../contrib/bootstrap_barrio/scss/barrio.scss 2:9             @import
+ *   scss/import.scss 15:9                                           @import
+ *   scss/style.scss 7:9                                             root stylesheet */
+
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Undefined mixin.\a   \2577 \a 9 \2502          @include button-variant($value);\a   \2502          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\a   \2575 \a   ../../contrib/bootstrap_barrio/scss/components/mixins.scss 9:3  @import\a   ../../contrib/bootstrap_barrio/scss/barrio.scss 2:9             @import\a   scss/import.scss 15:9                                           @import\a   scss/style.scss 7:9                                             root stylesheet";
+}

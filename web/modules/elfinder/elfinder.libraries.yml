@@ -1,0 +1,36 @@
+drupal.elfinder:
+  version: VERSION
+  js:
+    /sites/all/libraries/elfinder/js/elfinder.min.js: {}
+    #js/info.js: {}
+    js/elfinder.callback.js: {}
+  css:
+    theme:
+      /sites/all/libraries/elfinder/css/elfinder.min.css: {}
+      /sites/all/libraries/elfinder/css/theme.css: {}
+      css/elfinder.common.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+
+drupal.elfinder.jqueryui:
+  remote: https://code.jquery.com/ui/
+  version: 1.12.1
+  license:
+    name: MIT
+    url: http://jquery.org/license
+    gpl-compatible: true
+  css:
+    componment:
+      https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css: { type: external, minified: true }
+  js:
+     https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js: { type: external, minified: true }
+
+drupal.elfinder.bueditor:
+  version: VERSION
+  js:
+    js/elfinder.callback.js: {}
+    editors/bueditor/bueditor.callback.js: {}
+  dependencies:
+    - bueditor/drupal.bueditor

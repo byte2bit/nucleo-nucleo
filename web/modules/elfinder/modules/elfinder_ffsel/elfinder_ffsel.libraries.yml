@@ -1,0 +1,12 @@
+drupal.elfinder.filefield:
+  version: VERSION
+  js:
+    js/elfinder.filefield.js: {}
+  css:
+    component:
+      css/elfinder.filefield.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.dialog
+    - core/drupal
+    - core/drupalSettings

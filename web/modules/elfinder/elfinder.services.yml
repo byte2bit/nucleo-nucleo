@@ -1,0 +1,6 @@
+services:
+  elfinder.route_subscriber:
+    class: Drupal\elfinder\Routing\elFinderRouteSubscriber
+
+  elfinder.connector:
+    class: Drupal\elfinder\Routing\elFinderConnectorRouteSubscriber

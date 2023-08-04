@@ -1,0 +1,15 @@
+administer cmis connection entity:
+  title: 'Administer CMIS connection entity'
+  description: 'Allows to administer the CMIS connections.'
+  restrict access: true
+
+access all cmis browsers:
+  title: 'Access to all cmis browsers'
+  description: 'Allow access to all cmis browsers.'
+
+access cmis query page:
+  title: 'Access to the CMIS query page'
+  description: 'Allow access to the CMIS query page.'
+
+permission_callbacks:
+  - \Drupal\cmis\CmisPermissions::accessCmisBrowserPermissions

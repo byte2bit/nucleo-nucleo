@@ -1,0 +1,15 @@
+name: 'elFinder File Field Source'
+type: module
+description: 'File Field Sources elFinder connector'
+package: 'Media'
+project status url: https://drupal-elfinder.sourceforge.io/release-history.php
+dependencies:
+  - elfinder:elfinder
+  - filefield_sources:filefield_sources
+
+# Information added by packaging script
+version: '8.x-2.x-dev'
+core: '8.x'
+core_version_requirement: ^8 || ^9
+project: 'elfinder'
+datestamp: 1609945309
